@@ -1,9 +1,11 @@
 <?php
 namespace App\Http\Controllers;
 use App\Answer;
+use App\Notifications\UpdatePost;
 use App\Question;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use App\Notifications\NewPost;
 class AnswerController extends Controller
 {
     public function __construct()
@@ -46,6 +48,7 @@ class AnswerController extends Controller
         $Answer->user()->associate(Auth::user());
         $Answer->question()->associate($question);
         $Answer->save();
+        Auth::user()->notify(new NewPost());
         return redirect()->route('questions.show',['question_id' => $question->id])->with('message', 'Saved');
     }
     /**
@@ -89,6 +92,7 @@ class AnswerController extends Controller
         $answer = Answer::find($answer);
         $answer->body = $request->body;
         $answer->save();
+        Auth::user()->notify(new UpdatePost());
         return redirect()->route('answers.show',['question_id' => $question, 'answer_id' => $answer])->with('message', 'Updated');
     }
     /**
